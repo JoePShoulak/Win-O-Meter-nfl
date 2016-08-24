@@ -1,6 +1,5 @@
 # require 'spec_helper.rb'
 require './lib/nfl_helper'
-require './lib/parse'
 
 describe "A Subgame" do 
   

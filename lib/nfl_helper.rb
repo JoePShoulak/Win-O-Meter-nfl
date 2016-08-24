@@ -5,14 +5,15 @@
 ###############################
 
 class Subgame
-  def initialize(name="", points=0, yards=0, turns=0)
+  def initialize(name="", points=0, yards=0, turns=0, true_points=nil)
     @name   = name
     @points = points.to_i
     @yards  = yards.to_i
     @turns  = turns.to_i
+    @true_points  = true_points.to_i
   end
   
-  attr_accessor :name, :points, :yards, :turns
+  attr_accessor :name, :points, :yards, :turns, :true_points
   
   def stats
     return @points, @yards, @turns
@@ -37,12 +38,13 @@ class Subgame
 end
 
 class Match
-  def initialize(subgame1, subgame2)
+  def initialize(subgame1, subgame2, true_winner=nil)
     @subgame1 = subgame1
     @subgame2 = subgame2
+    @true_winner = true_winner
   end
   
-  attr_reader :subgame1, :subgame2
+  attr_reader :subgame1, :subgame2, :true_winner
   
   def subgames
     return [@subgame1, @subgame2]
@@ -75,5 +77,29 @@ def algorithm(subgame1, subgame2) # Weighted Euclidean distance between two coor
   dp = ( ( l1[0]-l2[0] )/8.0  )**2
   dy = ( ( l1[1]-l2[1] )/63.0 )**2
   dt = 0#(   l1[2]-l2[2]        )**2
+  
   return (dp + dy + dt)**(0.5)
+end
+
+def clear_line
+  print "\r" + " "*100 + "\b"*100
+end
+
+def load_reference(periods_testing)
+  print "Loading Reference File (1/2)..."
+  subgames  = json_load("./data/radar2014.json", periods_testing).map {|m| [m.subgame1, m.subgame2]}.flatten
+  clear_line
+  print "Loading Reference File (2/2)..."
+  subgames += json_load("./data/radar2013.json", periods_testing).map {|m| [m.subgame1, m.subgame2]}.flatten
+  clear_line
+  
+  return subgames
+end
+
+def load_testing(periods_testing)
+  print "Loading Testing File..."
+  matches = json_load("./data/radar2015.json", periods_testing)
+  clear_line
+  
+  return matches
 end

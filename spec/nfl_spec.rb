@@ -1,5 +1,5 @@
 # require 'spec_helper.rb'
-require './lib/nfl_helper_test'
+require './lib/nfl_helper'
 require './lib/parse'
 
 describe "A Subgame" do 
@@ -101,19 +101,25 @@ describe "A Match," do
 end
 
 describe "The Simulation," do 
+  subgames1 = load_reference 1
+  subgames3 = load_reference 3
+  matches1 = load_testing 1
+  matches3 = load_testing 3
+
+  
   it "should be able to load a json file and process it into matches" do
-    matches = json_load "./data/radar2015.json"
-    
-    expect(matches.length).to be > 0
-    expect(matches[0].class).to be Match
-    expect(matches[0].subgame1.class).to be Subgame
-    expect(matches[0].subgame2.class).to be Subgame
+    expect(matches1.length).to be > 0
+    expect(matches1[0].class).to be Match
+    expect(matches1[0].subgame1.class).to be Subgame
+    expect(matches1[0].subgame2.class).to be Subgame
   end
   
   it "should be able to load a csv file and process it into subgames" do
-    subgames = csv_load "./data/ref5year.csv"
-    
-    expect(subgames.length).to be > 0
-    expect(subgames[0].class).to be Subgame
+    expect(subgames1.length).to be > 0
+    expect(subgames1[0].class).to be Subgame
+  end
+  
+  it "should have different stats for different period testing" do
+    expect(subgames1[0].info).not_to be == subgames3[0].info
   end
 end

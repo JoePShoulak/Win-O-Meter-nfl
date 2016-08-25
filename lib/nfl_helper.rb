@@ -4,7 +4,7 @@ require 'json'
 def algorithm(subgame1, subgame2) # Weighted Euclidean distance between two coordinates, dividing by the ratio of Std Dev from points and yards to turnovers (the min)
   l1 = subgame1.stats
   l2 = subgame2.stats
-  dp = ( ( l1[0]-l2[0] )/8.0)**2
+  dp = ( ( l1[0]-l2[0] )/8.0  )**2
   dy = ( ( l1[1]-l2[1] )/63.0 )**2
   dt = 0#(   l1[2]-l2[2]        )**2
   

@@ -22,7 +22,7 @@ def simulate(periods_testing)
 
   clear_line
 
-  puts "Results: #{periods_testing} period(s), #{(100.0*correct/total).round(2)}% accurate (#{correct}/#{total})"
+  return "Results: #{periods_testing} period(s), #{(100.0*correct/total).round(2)}% accurate (#{correct}/#{total})", (100.0*correct/total).round(2)
 end
 
 if __FILE__ == $0
@@ -33,14 +33,22 @@ if __FILE__ == $0
   
   case ARGV[0]
   when "all"
+    total = 0
     (1..4).each do |n|
-      simulate n
+      r = simulate n
+      puts r[0]
+      total += r[1]
     end
+    puts "Total: #{(total/4).round(2)}%"
   when "test"
     system "rspec"
+    total = 0
     (1..4).each do |n|
-      simulate n
+      r = simulate n
+      puts r[0]
+      total += r[1]
     end
+    puts "Total: #{(total/4).round(2)}%"
   else
     simulate ARGV[0].to_i
   end

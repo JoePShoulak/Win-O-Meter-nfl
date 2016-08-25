@@ -1,6 +1,11 @@
 require 'json'
 
-year = 2013
+if ARGV.empty?
+  puts "Error: Needs a year"
+  exit
+end
+
+year = ARGV[0]
 
 print "Loading Schedule..."
 print "\b"*30
@@ -9,7 +14,7 @@ begin
   schedule = JSON.parse(`curl -s http://api.sportradar.us/nfl-ot1/games/#{year}/REG/schedule.json?api_key=5etueuh9u3a8auueywb7pesw`)
 rescue Exception => msg
   if msg.message.include? 'Developer Over Rate'
-    puts "Too many queries this month"
+    puts "Error: Too many queries this month"
     exit
   end
 end
@@ -29,13 +34,12 @@ l = game_ids.length
 games = []
 
 l.times do |n|
-  sleep 1
   print "Loading game #{n+1}/#{l} (#{(100*(n+1)/l).round}%)..."
   begin
     game = JSON.parse(`curl -s http://api.sportradar.us/nfl-ot1/games/#{game_ids[n]}/pbp.json?api_key=5etueuh9u3a8auueywb7pesw`)
   rescue Exception => msg
     if msg.message.include? 'Developer Over Rate'
-      puts "Too many queries this month"
+      puts "Error: Too many queries this month"
       exit
     else
       sleep 1

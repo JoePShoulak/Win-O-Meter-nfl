@@ -66,6 +66,7 @@ class Match
   def loser
     return self.tie? ? nil : self.subgames.min_by { |g| g.points }
   end
+  
   def info
     return self.subgame1.info + self.subgame2.info
   end
@@ -91,8 +92,9 @@ def process(game, periods_testing)
   subgame_home.name = game["summary"]["home"]["market"] + " " + home
   subgame_away.name = game["summary"]["away"]["market"] + " " + away
     
-  game["periods"].length.times do |pe|
+  game["periods"].length.times do |pe| # For each period
     period = game["periods"][pe]
+    
     home_points = period["scoring"]["home"]["points"].to_i
     away_points = period["scoring"]["away"]["points"].to_i
     
@@ -102,10 +104,10 @@ def process(game, periods_testing)
     subgame_home.final_score += home_points
     subgame_away.final_score += away_points
     
-    unless pe >= periods_testing
-      period["pbp"].select { |pl| pl["type"] == "drive" }.each do |play|# for each play do 
-        play["events"].select { |e| ["rush", "pass"].include? e["play_type"] && !play["events"].nil? }.each do |event|
-          event["statistics"].select { |s| ["rush", "pass"].include? s["stat_type"] && !event["statistics"].nil? }.each do |s|
+    unless pe >= periods_testing # If it's a period we're looking at 
+      period["pbp"].select { |pl| pl["type"] == "drive" }.each do |play| # For each collection on plays on one continuous posession
+        play["events"].select { |e| ["rush", "pass"].include? e["play_type"] && !play["events"].nil? }.each do |event| # For each play
+          event["statistics"].select { |s| ["rush", "pass"].include? s["stat_type"] && !event["statistics"].nil? }.each do |s| # Look at stats
             case s["team"]["name"]
             when home
               subgame_home.yards += s["yards"].to_i 
@@ -116,6 +118,7 @@ def process(game, periods_testing)
         end
       end
     end
+    
   end
   
   subgame_home.turns = 0

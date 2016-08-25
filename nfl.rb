@@ -7,7 +7,7 @@ def simulate(periods_testing)
   subgames = load_reference periods_testing
   matches  = load_testing   periods_testing
 
-  matches.select { |m| !m.true_tie && !m.tie? }.each do |match|
+  matches.select { |m| !m.true_tie }.each do |match|
     total += 1
   
     v_game1 = match.subgame1.find_closest subgames.select { |g| g.name == match.subgame1.name }
@@ -21,8 +21,10 @@ def simulate(periods_testing)
   end
 
   clear_line
+  
+  plural = (periods_testing == 1 ? ", " : "s,")
 
-  return "Results: #{periods_testing} period(s), #{(100.0*correct/total).round(2)}% accurate (#{correct}/#{total})", (100.0*correct/total).round(2)
+  return "Results: #{periods_testing} period" + plural + " #{(100.0*correct/total).round(2)}% accurate (#{correct}/#{total})", (100.0*correct/total).round(2)
 end
 
 if __FILE__ == $0
@@ -34,7 +36,7 @@ if __FILE__ == $0
   case ARGV[0]
   when "all"
     total = 0
-    (1..4).each do |n|
+    (1..3).each do |n|
       r = simulate n
       puts r[0]
       total += r[1]
@@ -42,8 +44,7 @@ if __FILE__ == $0
     puts "Total: #{(total/4).round(2)}%"
   when "test"
     system "rspec"
-    total = 0
-    (1..4).each do |n|
+    (1..3).each do |n|
       r = simulate n
       puts r[0]
       total += r[1]

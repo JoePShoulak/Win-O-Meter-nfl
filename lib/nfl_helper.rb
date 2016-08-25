@@ -1,9 +1,3 @@
-###################
-#   NFL Lib v1.3  #
-###############################
-#                             #
-###############################
-
 require 'json'
 
 # The algorithm
@@ -35,10 +29,6 @@ class Subgame
   
   def info
     return [@name] + self.stats
-  end
-  
-  def null?
-    return ( (self.name == "") and (self.points + self.yards + self.turns == 0) )
   end
   
   def distance_to(game)

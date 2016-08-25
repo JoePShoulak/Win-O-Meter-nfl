@@ -1,21 +1,11 @@
-##################
-#  Version 1.3   #
-#########################
-# Added SportsRadar API #
-#########################
-
 require './lib/nfl_helper'
 
-def simulate(periods_testing=nil)
+def simulate(periods_testing)
   correct = 0
-  total = 0
-
-  if periods_testing.nil?
-    periods_testing = ARGV.empty? ? 2 : ARGV[0].to_i
-  end
+  total   = 0
 
   subgames = load_reference periods_testing
-  matches = load_testing periods_testing
+  matches  = load_testing   periods_testing
 
   matches.select { |m| !m.true_tie }.each do |match|
     total += 1
@@ -36,5 +26,10 @@ def simulate(periods_testing=nil)
 end
 
 if __FILE__ == $0
-  simulate
+  if ARGV.empty?
+    puts "Error: Needs number of periods of use in testing"
+    exit
+  end
+  
+  simulate ARGV[0].to_i
 end

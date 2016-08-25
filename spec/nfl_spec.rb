@@ -1,4 +1,3 @@
-# require 'spec_helper.rb'
 require './lib/nfl_helper'
 
 describe "A Subgame" do 
@@ -26,10 +25,6 @@ describe "A Subgame" do
     expect(subgame.stats[0]).to be == subgame.info[1]
     expect(subgame.stats[1]).to be == subgame.info[2]
     expect(subgame.stats[2]).to be == subgame.info[3]
-  end
-  
-  it "should return 'false' for self.null?" do
-    expect(subgame.null?).to be false
   end
   
   it "should be able to find the distance to a game" do

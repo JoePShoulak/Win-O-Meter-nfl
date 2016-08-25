@@ -4,7 +4,7 @@ require 'json'
 def algorithm(subgame1, subgame2) # Weighted Euclidean distance between two coordinates, dividing by the ratio of Std Dev from points and yards to turnovers (the min)
   l1 = subgame1.stats
   l2 = subgame2.stats
-  dp = ( ( l1[0]-l2[0] )/8.0  )**2
+  dp = ( ( l1[0]-l2[0] )/8.0)**2
   dy = ( ( l1[1]-l2[1] )/63.0 )**2
   dt = 0#(   l1[2]-l2[2]        )**2
   
@@ -13,15 +13,15 @@ end
 
 # Classes
 class Subgame
-  def initialize(name="", points=0, yards=0, turns=0, true_points=nil)
+  def initialize(name="", points=0, yards=0, turns=0, final_score=nil)
     @name   = name
     @points = points.to_i
     @yards  = yards.to_i
     @turns  = turns.to_i
-    @true_points  = true_points.to_i
+    @final_score  = final_score.to_i
   end
   
-  attr_accessor :name, :points, :yards, :turns, :true_points
+  attr_accessor :name, :points, :yards, :turns, :final_score
   
   def stats
     return @points, @yards, @turns
@@ -35,7 +35,7 @@ class Subgame
     return algorithm(self, game)
   end
   
-  def search(list_of_games)
+  def find_closest(list_of_games)
     return list_of_games.sort_by { |g| algorithm(self, g) }[0]
   end
   
@@ -128,8 +128,8 @@ def process(game, periods_testing)
   subgame_home = Subgame.new(game["summary"]["home"]["market"] + " " + home, home_score, home_yards, 0, true_score_home)
   subgame_away = Subgame.new(game["summary"]["away"]["market"] + " " + away, away_score, away_yards, 0, true_score_away)
   
-  true_winner = [subgame_home, subgame_away].sort_by { |s| s.true_points }[1]
-  is_a_tie = ( subgame_home.true_points == subgame_away.true_points )
+  true_winner = [subgame_home, subgame_away].sort_by { |s| s.final_score }[1]
+  is_a_tie = ( subgame_home.final_score == subgame_away.final_score )
   
   m = Match.new(subgame_home, subgame_away, true_winner, is_a_tie)
     

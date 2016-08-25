@@ -10,8 +10,8 @@ def simulate(periods_testing)
   matches.select { |m| !m.true_tie }.each do |match|
     total += 1
   
-    v_game1 = match.subgame1.search subgames.select { |g| g.name == match.subgame1.name }
-    v_game2 = match.subgame2.search subgames.select { |g| g.name == match.subgame2.name }
+    v_game1 = match.subgame1.find_closest subgames.select { |g| g.name == match.subgame1.name }
+    v_game2 = match.subgame2.find_closest subgames.select { |g| g.name == match.subgame2.name }
 
     v_match = Match.new(v_game1, v_game2)
   
@@ -31,5 +31,17 @@ if __FILE__ == $0
     exit
   end
   
-  simulate ARGV[0].to_i
+  case ARGV[0]
+  when "all"
+    (1..4).each do |n|
+      simulate n
+    end
+  when "test"
+    system "rspec"
+    (1..4).each do |n|
+      simulate n
+    end
+  else
+    simulate ARGV[0].to_i
+  end
 end

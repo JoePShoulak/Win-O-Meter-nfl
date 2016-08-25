@@ -1,7 +1,7 @@
 require 'json'
 
 # The algorithm
-def algorithm(subgame1, subgame2) # Weighted Euclidean distance between two coordinates, dividing by the ratio of Std Dev from points and yards to turnovers (the min)
+def algorithm(subgame1, subgame2) # Currently, just points is better, so I'm not using this method
   l1 = subgame1.stats
   l2 = subgame2.stats
   dp = ( ( l1[0]-l2[0] )/8.0  )**2
@@ -32,11 +32,11 @@ class Subgame
   end
   
   def distance_to(game)
-    return algorithm(self, game)
+    return (self.points - game.points).abs
   end
   
   def find_closest(list_of_games)
-    return list_of_games.sort_by { |g| algorithm(self, g) }[0]
+    return list_of_games.sort_by { |g| self.distance_to g }[0]
   end
   
 end
@@ -49,7 +49,7 @@ class Match
     @true_tie = true_tie
   end
   
-  attr_reader :subgame1, :subgame2, :true_winner, :true_tie
+  attr_accessor :subgame1, :subgame2, :true_winner, :true_tie
   
   def subgames
     return [@subgame1, @subgame2]
@@ -82,42 +82,35 @@ end
 
 # Parse game
 def process(game, periods_testing)
+  subgame_home = Subgame.new
+  subgame_away = Subgame.new 
+  
   home = game["summary"]["home"]["name"]
   away = game["summary"]["away"]["name"]
   
-  home_yards = 0
-  away_yards = 0
-  
-  home_score = 0
-  away_score = 0
-  
-  true_score_home = 0
-  true_score_away = 0
+  subgame_home.name = game["summary"]["home"]["market"] + " " + home
+  subgame_away.name = game["summary"]["away"]["market"] + " " + away
     
   game["periods"].length.times do |pe|
     period = game["periods"][pe]
     home_points = period["scoring"]["home"]["points"].to_i
     away_points = period["scoring"]["away"]["points"].to_i
     
-    home_score += home_points unless pe >= periods_testing
-    away_score += away_points unless pe >= periods_testing
+    subgame_home.points += home_points unless pe >= periods_testing
+    subgame_away.points += away_points unless pe >= periods_testing
     
-    true_score_home += home_points
-    true_score_away += away_points
+    subgame_home.final_score += home_points
+    subgame_away.final_score += away_points
     
-    period["pbp"].select { |pl| pl["type"] == "drive" }.each do |play|# for each play do 
-      unless pe >= periods_testing
-        unless play["events"].nil?
-          play["events"].select { |e| ["rush", "pass"].include? e["play_type"] }.each do |event|
-            unless event["statistics"].nil?
-              event["statistics"].select { |s| ["rush", "pass"].include? s["stat_type"]}.each do |s|
-                case s["team"]["name"]
-                when home
-                  home_yards += s["yards"].to_i 
-                when away
-                  away_yards += s["yards"].to_i
-                end
-              end
+    unless pe >= periods_testing
+      period["pbp"].select { |pl| pl["type"] == "drive" }.each do |play|# for each play do 
+        play["events"].select { |e| ["rush", "pass"].include? e["play_type"] && !play["events"].nil? }.each do |event|
+          event["statistics"].select { |s| ["rush", "pass"].include? s["stat_type"] && !event["statistics"].nil? }.each do |s|
+            case s["team"]["name"]
+            when home
+              subgame_home.yards += s["yards"].to_i 
+            when away
+              subgame_away.yards += s["yards"].to_i
             end
           end
         end
@@ -125,14 +118,14 @@ def process(game, periods_testing)
     end
   end
   
-  subgame_home = Subgame.new(game["summary"]["home"]["market"] + " " + home, home_score, home_yards, 0, true_score_home)
-  subgame_away = Subgame.new(game["summary"]["away"]["market"] + " " + away, away_score, away_yards, 0, true_score_away)
+  subgame_home.turns = 0
+  subgame_away.turns = 0
   
-  true_winner = [subgame_home, subgame_away].sort_by { |s| s.final_score }[1]
-  is_a_tie = ( subgame_home.final_score == subgame_away.final_score )
+  m = Match.new(subgame_home, subgame_away)
   
-  m = Match.new(subgame_home, subgame_away, true_winner, is_a_tie)
-    
+  m.true_winner = [subgame_home, subgame_away].sort_by { |s| s.final_score }[1]
+  m.true_tie = ( subgame_home.final_score == subgame_away.final_score )
+      
   return m
 end
 
@@ -150,10 +143,16 @@ end
 # Load files
 def load_reference(periods_testing)
   print "Loading Reference File (1/2)..."
-  subgames  = json_load("./data/radar2014.json", periods_testing).map {|m| [m.subgame1, m.subgame2]}.flatten
+  
+  matches = json_load("./data/radar2014.json", periods_testing)
+  subgames = matches.map { |m| m.subgames }.flatten
+  
   clear_line
   print "Loading Reference File (2/2)..."
-  subgames += json_load("./data/radar2013.json", periods_testing).map {|m| [m.subgame1, m.subgame2]}.flatten
+  
+  matches = json_load("./data/radar2013.json", periods_testing)
+  subgames += matches.map { |m| m.subgames }.flatten
+  
   clear_line
   
   return subgames
@@ -161,7 +160,9 @@ end
 
 def load_testing(periods_testing)
   print "Loading Testing File..."
+  
   matches = json_load("./data/radar2015.json", periods_testing)
+  
   clear_line
   
   return matches

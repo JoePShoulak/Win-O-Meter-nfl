@@ -7,7 +7,7 @@ def simulate(periods_testing)
   subgames = load_reference periods_testing
   matches  = load_testing   periods_testing
 
-  matches.select { |m| !m.true_tie }.each do |match|
+  matches.select { |m| !m.true_tie && !m.tie? }.each do |match|
     total += 1
   
     v_game1 = match.subgame1.find_closest subgames.select { |g| g.name == match.subgame1.name }

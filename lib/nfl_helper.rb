@@ -15,15 +15,16 @@ end
 
 # Classes
 class Subgame
-  def initialize(name="", points=0, yards=0, turns=0, final_score=nil)
+  def initialize(name="", points=0, yards=0, turns=0, final_score=nil, id=nil)
     @name   = name
     @points = points.to_i
     @yards  = yards.to_i
     @turns  = turns.to_i
     @final_score  = final_score.to_i
+    @id=id
   end
   
-  attr_accessor :name, :points, :yards, :turns, :final_score
+  attr_accessor :name, :points, :yards, :turns, :final_score, :id
   
   def stats
     return @points, @yards, @turns
@@ -41,6 +42,9 @@ class Subgame
     return list_of_games.sort_by { |g| self.distance_to g }[0]
   end
   
+  def same_ad(game)
+    return self.id == game.id
+  end
 end
 
 class Match
@@ -88,11 +92,14 @@ def process(game, periods_testing)
   subgame_home = Subgame.new
   subgame_away = Subgame.new 
   
-  home = game["summary"]["home"]["name"]
-  away = game["summary"]["away"]["name"]
+  home_name = game["summary"]["home"]["name"]
+  away_name = game["summary"]["away"]["name"]
   
-  subgame_home.name = game["summary"]["home"]["market"] + " " + home
-  subgame_away.name = game["summary"]["away"]["market"] + " " + away
+  home_market = game["summary"]["home"]["market"]
+  away_market = game["summary"]["away"]["market"]
+  
+  subgame_home.name = home_market + " " + home_name
+  subgame_away.name = away_market + " " + away_name
     
   game["periods"].length.times do |pe| # For each period
     period = game["periods"][pe]

@@ -1,5 +1,7 @@
 require './lib/nfl_helper'
 
+$verbose = true
+
 def simulate(periods_testing)
   total   = 0
   correct = 0
@@ -12,6 +14,27 @@ def simulate(periods_testing)
     
     if !match.tie? && !match.true_tie
       correct += 1 if match.winner.name == match.true_winner.name
+      
+      if $verbose
+        puts "#{match.subgame1.name}:"
+        puts "\tCheck Score: #{match.subgame1.points}"
+        puts "\tFinal Score: #{match.subgame1.final_score}"
+
+        puts "#{match.subgame2.name}:"
+        puts "\tCheck Score: #{match.subgame2.points}"
+        puts "\tFinal Score: #{match.subgame2.final_score}"
+        
+        spread = match.winner.points - match.loser.points
+        win_percent = ( 100*( 0.5 + (spread/40.0) ) ).round(2)
+        
+        puts "Prediction: "
+        puts "\t#{match.winner.name} is ahead by #{spread}"
+        puts "\t#{match.winner.name}: #{win_percent}%"
+        puts "\t#{match.loser.name}: #{100 - win_percent}%"
+        
+        puts "Result: #{match.winner.name == match.true_winner.name}"
+        puts 
+      end
     else
       unknown += 1
     end

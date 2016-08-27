@@ -15,8 +15,10 @@ begin
 rescue Exception => msg
   if msg.message.include? 'Developer Over Rate'
     puts "Error: Too many queries this month"
-    exit
+  else
+    puts msg.message
   end
+  exit
 end
 
 puts "Schedule loaded." + " "*20
@@ -29,26 +31,33 @@ schedule["weeks"].each do |w|
   end
 end
 
+n = 1
 l = game_ids.length
 
 games = []
 
-l.times do |n|
-  print "Loading game #{n+1}/#{l} (#{(100*(n+1)/l).round}%)..."
+game_ids.each do |id|
+  print "Loading game #{n}/#{l} (#{(100.0*n/l).round}%)..."
+  n += 1
   begin
-    game = JSON.parse(`curl -s http://api.sportradar.us/nfl-ot1/games/#{game_ids[n]}/pbp.json?api_key=5etueuh9u3a8auueywb7pesw`)
+    game = JSON.parse(`curl -s http://api.sportradar.us/nfl-ot1/games/#{id}/pbp.json?api_key=5etueuh9u3a8auueywb7pesw`)
   rescue Exception => msg
     if msg.message.include? 'Developer Over Rate'
       puts "Error: Too many queries this month"
       exit
-    else
+    elsif msg.message.include? 'Developer Over Qps'
       sleep 1
-      game = JSON.parse(`curl -s http://api.sportradar.us/nfl-ot1/games/#{game_ids[n]}/pbp.json?api_key=5etueuh9u3a8auueywb7pesw`)
+      game = JSON.parse(`curl -s http://api.sportradar.us/nfl-ot1/games/#{id}/pbp.json?api_key=5etueuh9u3a8auueywb7pesw`)
+    else
+      puts msg.message
+      game = nil
     end
   end
   print "\b"*30
   games += [game]
 end
+
+games = games.select { |g| !g.nil? }
 
 puts "Games loaded." + " "*20
 

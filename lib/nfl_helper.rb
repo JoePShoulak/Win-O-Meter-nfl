@@ -2,13 +2,15 @@ require 'json'
 
 # The algorithm
 def algorithm(subgame1, subgame2) # Currently, just points is better, so I'm not using this method
-  l1 = subgame1.stats
-  l2 = subgame2.stats
-  dp = ( ( l1[0]-l2[0] )/8.0  )**2
-  dy = ( ( l1[1]-l2[1] )/63.0 )**2
-  dt = 0#(   l1[2]-l2[2]        )**2
+  #l1 = subgame1.stats
+  #l2 = subgame2.stats
+  #dp = ( ( l1[0]-l2[0] )/8.0  )**2
+  #dy = ( ( l1[1]-l2[1] )/63.0 )**2
+  #dt = 0#(   l1[2]-l2[2]        )**2
   
-  return (dp + dy + dt)**(0.5)
+  #return (dp + dy + dt)**(0.5)  Right now just points is better
+  
+  return (subgame1.points - subgame2.points).abs
 end
 
 # Classes
@@ -32,7 +34,7 @@ class Subgame
   end
   
   def distance_to(game)
-    return (self.points - game.points).abs
+    return algorithm(self, game)
   end
   
   def find_closest(list_of_games)

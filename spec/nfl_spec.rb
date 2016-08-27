@@ -40,7 +40,7 @@ describe "A Subgame" do
     games = [game1, game2]
 
     expect(subgame.distance_to(game1) < subgame.distance_to(game2)).to be true
-    expect(subgame.search games).to be == game1
+    expect(subgame.find_closest games).to be == game1
   end
 end
 

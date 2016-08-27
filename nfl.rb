@@ -41,15 +41,16 @@ if __FILE__ == $0
       puts r[0]
       total += r[1]
     end
-    puts "Total: #{(total/4).round(2)}%"
+    puts "Average: #{(total/3).round(2)}%"
   when "test"
     system "rspec"
+    total = 0
     (1..3).each do |n|
       r = simulate n
       puts r[0]
       total += r[1]
     end
-    puts "Total: #{(total/4).round(2)}%"
+    puts "Average: #{(total/3).round(2)}%"
   else
     simulate ARGV[0].to_i
   end

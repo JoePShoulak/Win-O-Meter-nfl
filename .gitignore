@@ -1,2 +1,4 @@
 */.DS_Store
 data/*
+output.txt
+verbose_output.txt

@@ -15,23 +15,17 @@ end
 
 # Classes
 class Subgame
-  def initialize(name="", points=0, yards=0, turns=0, final_score=nil, id=nil)
+  def initialize(name="", points=0, final_score=nil, id=nil)
     @name   = name
     @points = points.to_i
-    @yards  = yards.to_i
-    @turns  = turns.to_i
     @final_score  = final_score.to_i
     @id=id
   end
   
-  attr_accessor :name, :points, :yards, :turns, :final_score, :id
+  attr_accessor :name, :points, :final_score, :id
   
-  def stats
-    return @points, @yards, @turns
-  end
-  
-  def info
-    return [@name] + self.stats
+  def score
+    return [self.name, self.points]
   end
   
   def distance_to(game)
@@ -76,10 +70,6 @@ class Match
   def info
     return self.subgame1.info + self.subgame2.info
   end
-  
-  def tiebreaker!    
-    self.subgames.sort_by { |g| g.yards }[1].points += 1
-  end
 end
 
 # Misc.
@@ -113,9 +103,6 @@ def process(game, periods_testing)
     subgame_home.final_score += home_points
     subgame_away.final_score += away_points
   end
-  
-  subgame_home.turns = 0
-  subgame_away.turns = 0
   
   m = Match.new(subgame_home, subgame_away)
   

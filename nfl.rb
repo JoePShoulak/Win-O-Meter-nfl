@@ -19,8 +19,16 @@ def simulate(periods_testing)
 
   clear_line  
   
-  message = "Results: #{periods_testing} period(s), #{(100.0*correct/total).round(2)}% accurate (#{correct}/#{total}), #{(100.0*unknown/total).round(2)}% unknown (#{unknown}/#{total})"
-  numbers = [(100.0*correct/total).round(2), (100.0*unknown/total).round(2)]
+  correct_ratio = correct.to_f/total
+  unknown_ratio = unknown.to_f/total
+  theoretical_ratio = correct_ratio + correct_ratio*unknown_ratio
+  
+  correct_percent = 100*correct_ratio.round(2)
+  unknown_percent = 100*unknown_ratio.round(2)
+  theoretical_percent = 100*theoretical_ratio.round(2)
+  
+  message = "Results: #{periods_testing} period(s), #{correct_percent}% accurate, #{unknown_percent}% unknown, #{theoretical_percent}% theoretical)"
+  numbers = [correct_percent, unknown_percent, theoretical_percent]
 
   return [message] + numbers
 end
@@ -35,26 +43,32 @@ if __FILE__ == $0
   when "all"
     correct = 0
     unknown = 0
+    theoretical = 0
     (1..3).each do |n|
       r = simulate n
       puts r[0]
       correct += r[1]
       unknown += r[2]
+      theoretical += r[3]
     end
     puts "Average Correct: #{(correct/3).round(2)}%"
     puts "Average Unknown: #{(unknown/3).round(2)}%"
+    puts "Average Theoretical: #{(theoretical/3).round(2)}%"
   when "test"
     system "rspec"
     correct = 0
     unknown = 0
+    theoretical = 0
     (1..3).each do |n|
       r = simulate n
       puts r[0]      
       correct += r[1]
       unknown += r[2]
+      theoretical += r[3]
     end
     puts "Average Correct: #{(correct/3).round(2)}%"
     puts "Average Unknown: #{(unknown/3).round(2)}%"
+    puts "Average Theoretical: #{(theoretical/3).round(2)}%"
   else
     simulate ARGV[0].to_i
   end

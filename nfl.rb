@@ -14,23 +14,20 @@ def simulate(periods_testing, verbose)
       correct += 1 if match.winner.name == match.true_winner.name
       
       if verbose
-        puts "#{match.subgame1.name}:"
-        puts "\tCheck Score: #{match.subgame1.points}"
-        puts "\tFinal Score: #{match.subgame1.final_score}"
-
-        puts "#{match.subgame2.name}:"
-        puts "\tCheck Score: #{match.subgame2.points}"
-        puts "\tFinal Score: #{match.subgame2.final_score}"
-        
-        spread = match.winner.points - match.loser.points
-        win_percent = ( 100*( 0.5 + (spread/40.0) ) ).round(2)
+        match.subgames.each do |subgame|
+          puts "#{subgame.name}"
+          puts "\tCheck Score: #{subgame.points}"
+          puts "\tFinal Score: #{subgame.final_score}"
+        end
         
         puts "Prediction: "
-        puts "\t#{match.winner.name} is ahead by #{spread}"
-        puts "\t#{match.winner.name}: #{win_percent}%"
-        puts "\t#{match.loser.name}: #{100 - win_percent}%"
+        puts "\t#{match.winner.name} are ahead by #{match.spread.abs}"
         
-        puts "Result: #{match.winner.name == match.true_winner.name}"
+        match.subgames.each do |subgame|
+          puts "\t#{subgame.name}: #{subgame.win_percentage}%"
+        end
+        
+        puts "\tResult: #{match.winner.name == match.true_winner.name}"
         puts 
       end
     else

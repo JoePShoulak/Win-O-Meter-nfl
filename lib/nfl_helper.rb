@@ -15,14 +15,14 @@ end
 
 # Classes
 class Subgame
-  def initialize(name="", points=0, final_score=nil, id=nil)
+  def initialize(name="", points=0, final_score=nil, id=nil, win_percentage=nil)
     @name   = name
     @points = points.to_i
     @final_score  = final_score.to_i
     @id=id
   end
   
-  attr_accessor :name, :points, :final_score, :id
+  attr_accessor :name, :points, :final_score, :id, :win_percentage
   
   def score
     return [self.name, self.points]
@@ -36,7 +36,7 @@ class Subgame
     return list_of_games.sort_by { |g| self.distance_to g }[0]
   end
   
-  def same_ad(game)
+  def same_as?(game)
     return self.id == game.id
   end
 end
@@ -47,6 +47,9 @@ class Match
     @subgame2 = subgame2
     @true_winner = true_winner
     @true_tie = true_tie
+    
+    self.subgame1.win_percentage = 100*(0.5 + self.spread/40.0)
+    self.subgame2.win_percentage = 100 - self.subgame1.win_percentage
   end
   
   attr_accessor :subgame1, :subgame2, :true_winner, :true_tie
@@ -69,6 +72,10 @@ class Match
   
   def info
     return self.subgame1.info + self.subgame2.info
+  end
+  
+  def spread
+    return self.subgame1.points - self.subgame2.points
   end
 end
 

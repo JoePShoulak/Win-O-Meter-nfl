@@ -5,7 +5,11 @@ def simulate(periods_testing, verbose)
   correct = 0
   unknown = 0
 
-  matches  = load_testing   periods_testing
+  print "Loading Testing File..."
+
+  matches = json_load("./data/nfl2015.json", periods_testing, "NFL")
+
+  clear_line
 
   matches.select { |m| !m.true_tie }.each do |match|
     total += 1

@@ -1,34 +1,35 @@
 require './lib/nfl_helper'
 
-describe "A Subgame" do 
-  
-  subgame = Subgame.new("Packers", 7, 200, 1)
-    
+subgame1 = Subgame.new
+subgame1.name = "Packers"
+subgame1.points = 7
+
+subgame2 = Subgame.new
+subgame2.name = "Vikings"
+subgame2.points = 10
+
+subgame3 = Subgame.new
+subgame3.name = "Bears"
+subgame3.points = 14
+
+describe "A Subgame" do   
   it "should have a name" do
-    expect(subgame.name.length).to be > 0
+    expect(subgame1.name.length).to be > 0
   end
   
   it "should be able to find the distance to a game" do
-    game1 = Subgame.new("Packers", 10, 250, 2)
-
-    expect(subgame.distance_to game1).to be > 0
+    expect(subgame1.distance_to subgame2).to be > 0
   end
   
   it "should be able to find the closest game in a list (by algorithm)" do
-    game1 = Subgame.new("Packers", 10, 250, 2)
-    game2 = Subgame.new("Vikings", 14, 300, 3)
-    
-    games = [game1, game2]
+    subgames = [subgame2, subgame3]
 
-    expect(subgame.distance_to(game1) < subgame.distance_to(game2)).to be true
-    expect(subgame.find_closest games).to be == game1
+    expect(subgame1.distance_to(subgame2) < subgame1.distance_to(subgame3)).to be true
+    expect(subgame1.find_closest subgames).to be == subgame2
   end
 end
 
 describe "A Match," do
-  
-  subgame1 = Subgame.new("Home", 7, 200, 2)
-  subgame2 = Subgame.new("Away", 10, 250, 1)
   match  = Match.new(subgame1, subgame2)
   
   context "when the scores are different," do
@@ -57,5 +58,4 @@ describe "A Match," do
       expect(match.loser).to  be nil
     end
   end
-
 end

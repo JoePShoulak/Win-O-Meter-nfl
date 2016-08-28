@@ -1,25 +1,15 @@
 require 'json'
 
 # The algorithm
-def algorithm(subgame1, subgame2) # Currently, just points is better, so I'm not using this method
-  #l1 = subgame1.stats
-  #l2 = subgame2.stats
-  #dp = ( ( l1[0]-l2[0] )/8.0  )**2
-  #dy = ( ( l1[1]-l2[1] )/63.0 )**2
-  #dt = 0#(   l1[2]-l2[2]        )**2
-  
-  #return (dp + dy + dt)**(0.5)  Right now just points is better
-  
+def algorithm(subgame1, subgame2)
   return (subgame1.points - subgame2.points).abs
 end
 
 # Classes
 class Subgame
-  def initialize(name="", points=0, final_score=nil, id=nil, win_percentage=nil)
-    @name   = name
-    @points = points.to_i
-    @final_score  = final_score.to_i
-    @id=id
+  def initialize
+    @points = 0
+    @final_score = 0
   end
   
   attr_accessor :name, :points, :final_score, :id, :win_percentage
@@ -42,11 +32,9 @@ class Subgame
 end
 
 class Match
-  def initialize(subgame1, subgame2, true_winner=nil, true_tie=nil)
+  def initialize(subgame1, subgame2)
     @subgame1 = subgame1
     @subgame2 = subgame2
-    @true_winner = true_winner
-    @true_tie = true_tie
     
     self.subgame1.win_percentage = 100*(0.5 + self.spread/40.0)
     self.subgame2.win_percentage = 100 - self.subgame1.win_percentage
@@ -85,15 +73,27 @@ def clear_line
 end
 
 # Parse game
-def process(game, periods_testing)
+def process(game, periods_testing, sport)
   subgame_home = Subgame.new
   subgame_away = Subgame.new 
+
+  subgame_home.id = game["id"]
+  subgame_away.id = game["id"]
   
-  home_name = game["summary"]["home"]["name"]
-  away_name = game["summary"]["away"]["name"]
-  
-  home_market = game["summary"]["home"]["market"]
-  away_market = game["summary"]["away"]["market"]
+  case sport
+  when "NFL"
+    home = game["summary"]["home"]
+    away = game["summary"]["away"]
+  when "NBA"
+    home = game["home"]
+    away = game["away"]
+  end
+
+  home_market = home["market"]
+  away_market = away["market"]
+    
+  home_name = home["name"]
+  away_name = away["name"]
   
   subgame_home.name = home_market + " " + home_name
   subgame_away.name = away_market + " " + away_name
@@ -120,40 +120,22 @@ def process(game, periods_testing)
 end
 
 # Parse season
-def json_load(json_file, periods_testing)
+def json_load(json_file, periods_testing, sport)
   processed_games = []
+  
+  games = JSON.parse(File.read(json_file))
+  games = games.select { |g| g["status"] == "closed" }
 
-  JSON.parse(File.read(json_file)).each do |game|
-    processed_games << process(game, periods_testing)
+  games.each do |game|
+    processed_games << process(game, periods_testing, sport)
   end
   
   return processed_games
 end
 
 # Load files
-def load_reference(periods_testing)
-  print "Loading Reference File (1/2)..."
-  
-  matches = json_load("./data/radar2014.json", periods_testing)
+def convert_to_subgames(matches)  
   subgames = matches.map { |m| m.subgames }.flatten
-  
-  clear_line
-  print "Loading Reference File (2/2)..."
-  
-  matches = json_load("./data/radar2013.json", periods_testing)
-  subgames += matches.map { |m| m.subgames }.flatten
-  
-  clear_line
-  
+    
   return subgames
-end
-
-def load_testing(periods_testing)
-  print "Loading Testing File..."
-  
-  matches = json_load("./data/radar2015.json", periods_testing)
-  
-  clear_line
-  
-  return matches
 end
